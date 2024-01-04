@@ -141,8 +141,8 @@ test_lang$target <- paste(test_lang$target, " ", sep="")
 ## Nodes werden erstellt 
 nodes <- data.frame(name=c(as.character(test_lang$source), as.character(test_lang$target)) %>% unique())
 
-test_lang$IDsource=match(test_lang$source, nodes$name)-1 
-test_lang$IDtarget=match(test_lang$target, nodes$name)-1
+test_lang$IDsource <- match(test_lang$source, nodes$name)-1 
+test_lang$IDtarget <- match(test_lang$target, nodes$name)-1
 
 ## Farbauswahl
 farben_blau_gruen <- c("#08306b", "#2171b5", "#6baed6","#48b99b", "#369c75")
