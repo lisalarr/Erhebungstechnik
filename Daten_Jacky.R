@@ -88,20 +88,20 @@ zeilennamen <- c("UB", "EFB", "CLS", "Galerie", "Fak", "BCI", "Süd", "SRG")
 ## Zählt also, wie viele Leute immer noch einen Lernort benutzten bzw. wie viele
 ## Leute von einem Lernort zu einem anderen gewechselt sind
 test <- matrix(0, nrow = length(zeilennamen), ncol = length(spaltennamen))
-rownames(test) <- zeilennamen
-colnames(test) <- spaltennamen
+rownames(test) <- spaltennamen
+colnames(test) <- zeilennamen
 test <- as.data.frame(test)
 
 names <- names(freq)
 orte_vorher <- names[seq(1,length(names), by = 2)]
 orte_nachher <- names[seq(2,length(names), by = 2)]
 
-## NAs entfernen
+## NAs werden mit 0 ersetzt
 data[,5:20][is.na(data[,5:20])] <- 0
 
-## Mithilfe der Schleifen wird (hoffentlich) gezählt, wie viele Leute einen
-## Lernort vorher und jetzt angekreuzt haben bzw. wie viele Leute einen Lernort
-## vorher angekreuzt haben und jetzt einen anderen (Doppelungen können vorkommen)
+## Mithilfe der Schleifen wird gezählt, wie viele Leute einen Lernort vorher
+## und jetzt angekreuzt haben bzw. wie viele Leute einen Lernort
+## vorher angekreuzt haben und jetzt einen Anderen
 
 for(i in 1:length(zeilennamen)){
   for(j in 1:length(spaltennamen)){
@@ -138,11 +138,13 @@ data_long <- test %>%
 colnames(data_long) <- c("source", "target", "value")
 data_long$target <- paste(data_long$target, " ", sep="")
 
+## Nodes werden erstellt 
 nodes <- data.frame(name=c(as.character(data_long$source), as.character(data_long$target)) %>% unique())
 
 data_long$IDsource=match(data_long$source, nodes$name)-1 
 data_long$IDtarget=match(data_long$target, nodes$name)-1
 
+## Farbauswahl
 farben_blau_gruen <- c("#08306b", "#2171b5", "#6baed6","#48b99b", "#369c75")
 
 farben <- paste0('d3.scaleOrdinal().range(["', paste(farben_blau_gruen, collapse = '","'), '"])')
@@ -152,6 +154,7 @@ sankey_diagramm <- sankeyNetwork(Links = data_long, Nodes = nodes,
               Value = "value", NodeID = "name", nodePadding=17,
               sinksRight=FALSE, colourScale=farben, nodeWidth=45, fontSize=12.5)
 
+## Sankey Diagramm wird geplotet
 sankey_diagramm
 
 ## Barplots der Lernortnutzung (Vorher und Jetzt)
@@ -160,3 +163,4 @@ barplot(sum_before, las = 2, ylim = c(0,100))
 barplot(sum_now, las = 2, ylim = c(0,100))
 
 dev.off()
+
