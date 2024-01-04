@@ -130,26 +130,26 @@ test <- test[c(T,T,T,T,T,F,F,T),]
 library(networkD3)
 
 ## "Langes" Format wird erstellt
-data_long <- test %>%
+test_lang <- test %>%
   rownames_to_column %>%
   gather(key = 'key', value = 'value', -rowname) %>%
   filter(value > 0)
 
-colnames(data_long) <- c("source", "target", "value")
-data_long$target <- paste(data_long$target, " ", sep="")
+colnames(test_lang) <- c("source", "target", "value")
+test_lang$target <- paste(test_lang$target, " ", sep="")
 
 ## Nodes werden erstellt 
-nodes <- data.frame(name=c(as.character(data_long$source), as.character(data_long$target)) %>% unique())
+nodes <- data.frame(name=c(as.character(test_lang$source), as.character(test_lang$target)) %>% unique())
 
-data_long$IDsource=match(data_long$source, nodes$name)-1 
-data_long$IDtarget=match(data_long$target, nodes$name)-1
+test_lang$IDsource=match(test_lang$source, nodes$name)-1 
+test_lang$IDtarget=match(test_lang$target, nodes$name)-1
 
 ## Farbauswahl
 farben_blau_gruen <- c("#08306b", "#2171b5", "#6baed6","#48b99b", "#369c75")
 
 farben <- paste0('d3.scaleOrdinal().range(["', paste(farben_blau_gruen, collapse = '","'), '"])')
 
-sankey_diagramm <- sankeyNetwork(Links = data_long, Nodes = nodes,
+sankey_diagramm <- sankeyNetwork(Links = test_lang, Nodes = nodes,
               Source = "IDsource", Target = "IDtarget",
               Value = "value", NodeID = "name", nodePadding=17,
               sinksRight=FALSE, colourScale=farben, nodeWidth=45, fontSize=12.5)
