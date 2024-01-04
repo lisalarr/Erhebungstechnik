@@ -72,8 +72,8 @@ zeilennamen <- c("UB", "EFB", "CLS", "Galerie", "Fak", "BCI", "Süd", "SRG")
 ## Zählt also, wie viele Leute immer noch einen Lernort benutzten bzw. wie viele
 ## Leute von einem Lernort zu einem anderen gewechselt sind
 test <- matrix(0, nrow = length(zeilennamen), ncol = length(spaltennamen))
-rownames(test) <- spaltennamen
-colnames(test) <- zeilennamen
+rownames(test) <- zeilennamen
+colnames(test) <- spaltennamen
 test <- as.data.frame(test)
 
 names <- names(freq)
