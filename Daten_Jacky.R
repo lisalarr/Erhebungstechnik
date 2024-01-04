@@ -2,6 +2,17 @@ library("readxl")
 data <- read_excel("C:/Users/Jacqu/Documents/Erhebungstechniken/Bericht/DatensatzFragebogenLJJY.xlsx")
 data$id <- c(seq(1, length(data$`[id]`)))
 
+## Daten bereinigen
+
+nrow(data) # 143 eingereicht
+drop = c(43, 71) 
+data = data[-drop, ]
+rm(drop)
+nrow(data) # 141 verwertbare Daten
+# Nicht-TU-Studenten und Erstis ebenfalls loeschen
+data = data[-which(data[ ,64] == 2), ]
+nrow(data) # nur noch 122 verwertbare
+
 ## Anteile Bib-Nutzung und Ersatzbewertung ##
 
 #barplot(table(data$`Ersatzbew. (10)`))
@@ -132,7 +143,7 @@ farben <- paste0('d3.scaleOrdinal().range(["', paste(farben_blau_gruen, collapse
 
 sankey_diagramm <- sankeyNetwork(Links = test_lang, Nodes = nodes,
               Source = "IDsource", Target = "IDtarget",
-              Value = "value", NodeID = "name", nodePadding=17,
+              Value = "value", NodeID = "name", nodePadding=15,
               sinksRight=FALSE, colourScale=farben, nodeWidth=45, fontSize=12.5)
 
 ## Sankey Diagramm wird geplotet
