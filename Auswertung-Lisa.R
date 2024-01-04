@@ -7,7 +7,9 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
 # Vorbereitung Bericht 
 # 1: Einleitung 
 # Motivation: Neubau der UB, Analyse geschaffener Alternativen
+# + allgemeine Informationen wie Anz. Lernplaetze etc. (s. Johanna)
 # Forschungsfrage: Wie ist die aktuelle Lernort Situation der TU zu bewerten? 
+# Subfragen (s. Liste Johanna) 
 
 # 2: Erhebungsinstrument 
 # Vierseitiger Fragebogen 
@@ -27,9 +29,8 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
 
 # 3: Stichprobe und Datensatz
 # Erhebung: Aushaendigen von Boegen, online Ausfuellen (PDF)
-# Stichprobe: 143 eingereichte Frageboegen
-# Variablen mit Skalenniveau 
-# -------------
+# Stichprobe: 143 eingereichte Frageboegen (noch ohne Filtern!)
+# Variablen mit Skalenniveau: gleiche Typen gruppieren
 
 # 4: Ergebnisse 
 # Gesamtzahl an Teilnehmern 
@@ -39,14 +40,14 @@ data = data[-drop, ]
 rm(drop)
 nrow(data) # 141 verwertbare Daten
 # Nicht-TU-Studenten und Erstis ebenfalls loeschen
-data = data[-which(data[ ,64] == 2), ]
-nrow(data) # nur noch 122 verwertbare
+data = data[-which(data[ ,64] == 0), ]
+nrow(data) # nur noch 138 verwertbare
 
 # Auswertung der einzelnen Fragen
 # 1: Diese Woche bereits Lernorte genutzt
 # data[ ,2], numeric range 0-1 (0 nein, 1 ja)
-length(which(data$`Frage 1` == 1)) # 103
-103/122 # 84.43% 
+# Einstiegsfrage: gar nicht auswerten (ohne Erhebungsabsicht) 
+# Motivation fuer Fragebogen, nicht repraesentativ
 
 # 2: Woechentlich durchschnittliche Nutzung  
 # data[ ,3:4], character, Zeit in Stunden
@@ -55,39 +56,45 @@ frage2 = as.data.frame(lapply(data[ ,3:4], as.numeric))
 # Bereinigt zu numeric
 mean(frage2[ ,1], na.rm = TRUE) # 12.13 Stunden
 mean(frage2[ ,2], na.rm = TRUE) # 10.84 Stunden (weniger!)
+boxplot(na.omit(data[ ,3]), as.numeric(na.omit(data[ ,4]), names = c("Group1", "Group2"), main = "Boxplots nebeneinander")))
 
 # 3: Verteilung  
 # data[ ,5:20], numeric range 0-1 (0 nein, 1 ja pro Standort)
-optionen = c("UB", "Sebrath", "EF", "Co-Learning", "Galerie", "Fakultät", "CT BCI", "Süd", "SRG I")
-wann = c("V", "N")
-# stacked barplot mit ggplot2 
-# x: optionen
-# y: 0-122(?)
-# fill: vorher nachher
+# (Plot mit Wanderung von Jacky + nebeneinander Barplot)
+# Trend: viel UB vorher (Wanderung nach ...)
+# Neue Lernorte werden genutzt 
 
 # 4: Zweck der Nutzung
 # data[ ,21:26], numeric range 0-1 (0 nein, 1 ja pro Zweck)
 # data[ ,27], character 
-
+barplot(colSums(na.omit(data[ ,21:26])))
+# Divers, also wichtig
 
 # 5: Anforderungen an Lernumgebung 
 # data[ ,28:37], numeric range 1-5 (sehr unwichtig - sehr wichtig)
+# (Plot mit Durchschnitten von Yannick)
 
 # 6: Umsetzung VOR WiSe 2023/24
 # data[ ,38:47], numeric range 1-6 (Schulnoten)
+# (score)
 
 # 7: Umsetzung AKTUELL im WiSe 2023/24
 # data[ ,48:57], numeric range 1-6 (Schulnoten)
+# (score)
 
 # 8: Sonstige Aspekte 
 # data[ ,58], character 
 # data[ ,59:60], numeric range 1-6 (Schulnoten, vorher und jetzt)
+# (einzeln im Text nennen) 
 
-# 9: Allgemeine Bwertung der Lernsituation
+# 9: Allgemeine Bewertung der Lernsituation
 # data[ ,61], numeric range 1-4 (sehr schlecht - sehr gut)
+barplot(table(na.omit(data[ ,61])))
 
 # 10: Angemessener Ausgleich
 # data[ ,62], numeric range 0-1 (0 nein, 1 ja)
+barplot(table(na.omit(data[ ,62])))
+# (Mosaikplot Jacky)
 
 # 11: Geschlecht
 # data[ ,63], numeric range 1-3 (weiblich, maennlich, divers)
@@ -99,8 +106,7 @@ table(data[ ,64]) # am meisten Bachelor
 
 # 13: Fakultaet
 # data[ ,65], character
-  # --- 
-# Bereinigt zu numeric range 1-17 (Liste TU)
+# uninteressant, lediglich in Reflexion 
 
 # 14: Durchschnittliche Fahrtzeit
 # data[ ,66], character
@@ -113,19 +119,22 @@ table(data[ ,64]) # am meisten Bachelor
 
 # (16:) Feedback
 # data[ ,68], character
+# Positiv - wichtiges Thema, das die Studierenden beschaeftigt 
 
 # 5: Diskussion
 # Einordnung: 
 # Lernsituation im Allgemeinen relativ gut 
 # Aber mehrheitlich kein angemessener Ersatz der UB (Einzelaspekte!)
 # Limitationen:
+# Sebrath erst seit einem Monat geoeffnet 
 # Lernpensum anfangs des Semesters geringer (Erfassung in Klausurenphase interessanter)
 # Gleichmaessigere Erfassung verschiedener Fakultaeten aussagekraeftiger 
 # Je nach Fakultaet unterschiedlich gutes Angebot an eigenen Raeumlichkeiten
 # Je nach Fakultaet individuelle Auslastung 
-# Aussagekraft nur fuer Bachelor 
+# Aussagekraft primaer fuer Bachelor 
 
 # 6: Reflexion der fragebogengestuetzten Erhebung 
 # Erhebungsort bei diesem Stichprobenumfang und hoher Anzahl an Online-Einreichungen nicht sinnvoll
 # Spaetere Erhebung
 # Gleichmaessigere Verteilung (ggf. online spreaden / QR Code)
+# Studierende vor Ort getroffen -> viele, die zuhause lernen nicht beruecksichtigt
