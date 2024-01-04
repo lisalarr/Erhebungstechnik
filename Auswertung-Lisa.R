@@ -161,7 +161,18 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     dev.off()
     rm(sum_before, sum_now)
     # Gleicher Trend erkennbar 
-  
+    
+    # Veraenderung der Lernortnutzung (GuV in absoluten HK)
+    indices = 2:8
+    diffOrtc = jetztOrt[indices] - vorherOrt[indices]
+    diffOrt = rbind(diffOrtc, names = c("EFB", "CLS", "Galerie", "Fakultät", "BCI", "Süd", "SRG"))
+    barplot(as.numeric(diffOrt[1,]) ~ diffOrt[2,], 
+            xlab = "Lernorte", ylab = "Absolute Häufigkeit", 
+            ylim = c(-10, 40), col =  c("red", rep("green", 5), "red"))
+    abline(h = 0)
+    mtext("Veränderung der Lernortnutzung", line = -1.5, outer = TRUE)
+    # Vor allem Wanderung zu Galerie 
+    
   # 4: Zweck der Nutzung
     # data[ ,21:26], numeric range 0-1 (0 nein, 1 ja pro Zweck)
     # data[ ,27], character 
@@ -215,16 +226,30 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     
   # 5: Anforderungen an Lernumgebung 
     # data[ ,28:37], numeric range 1-5 (sehr unwichtig - sehr wichtig)
-    # (Plot mit Durchschnitten von Yannick)
+    # --- 
   
   # 6: Umsetzung VOR WiSe 2023/24
     # data[ ,38:47], numeric range 1-6 (Schulnoten)
-    # (score)
-  
+    par(mfrow=c(1,2))
+    plot(data$ScoreV, col = 1, ylim = c(6, 1), 
+         xlab = "Studierende", ylab = "", yaxt = "n",
+         main = "Score vor dem WiSe 2023/24")
+    axis(2, at = 1:6, las = 1, labels = c("sehr gut", "gut", "befriedigend", "ausreichend", "mangelhaft", "ungenügend"))
+    abline(h = meanV, col = "red", lwd = 2, )
+    text("Durchschnitt", x = 125, y = 2.2)
+    
   # 7: Umsetzung AKTUELL im WiSe 2023/24
     # data[ ,48:57], numeric range 1-6 (Schulnoten)
-    # (score)
-  
+    plot(data$ScoreN, col = 1, ylim = c(6, 1), 
+         xlab = "Studierende", ylab = "", yaxt = "n",
+         main = "Score während des WiSe 2024/24")
+    axis(2, at = 1:6, las = 1, labels = c("sehr gut", "gut", "befriedigend", "ausreichend", "mangelhaft", "ungenügend"))
+    abline(h = meanN, col = "red", lwd = 2)
+    text("Durchschnitt", x = 125, y = 2.6)
+    mtext("Gesamtbewertung der Lernorte der TU", line = -1.5, outer = TRUE)
+    dev.off()
+    # Insgesamt geringere Zufriedenheit
+
   # 8: Sonstige Aspekte 
     # data[ ,58], character 
     # data[ ,59:60], numeric range 1-6 (Schulnoten, vorher und jetzt)
@@ -249,7 +274,7 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
             ylim = c(0, 100), ylab = "Anz. Studierende",
             names.arg = c("Nicht angemessen", "Angemessen"))
     # Ueberwiegend negativ, also kein angemessener Ausgleich
-    # Mit Anteilen der Bib-Nutzung (Plot von Jacky) 
+    # Mit Anteilen der Bib-Nutzung
     mosaicplot(~ factor(`UB(V)`, levels = c(1, 0), labels = c("Ja", "Nein")) +
                  factor(`Ersatzbew. (10)`, levels = c(1, 0), labels = c("Ja", "Nein")),
                data = data, 
@@ -294,6 +319,13 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     dev.off()
     # Vergleich vermutlich wenig sinnvoll, da Wanderung zu anderen Alternativen
     # Aber: primaer Nutzung der Lernorte bei kuerzeren Wegen (v.a. bei SB)
+    
+    boxplot(as.numeric(data$Fahrzeit) ~ as.numeric(data$`Ersatzbew. (10)`), na.rm = TRUE,
+            ylab = "Fahrtzeit [min]", xlab = "Bewertung der Übergangssituation",
+            xaxt = "n",
+            main = "Fahrtzeiten in Relation zur Zufriedenheit der aktuellen Lernort-Situation")
+    axis(1, at = 1:2, las = 1, labels = c("gelungen", "nicht gelungen"))
+    # Wenig Aussagekraft
     
   # (15:) Erhebungsort
     # data[ ,67], character
