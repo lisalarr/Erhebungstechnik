@@ -111,6 +111,7 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
         }
       }
     }
+    
     # Wenig genutzte Lernorte zur Uebersichtlichkeit entfernen 
     test = subset(test, select = -BCI)
     test = subset(test, select = -Süd)
@@ -149,11 +150,11 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     # Barplots der Lernortnutzung
     par(mfrow = c(1, 2))
     barplot(sum_before, las = 2, ylim = c(0, 100),
-            ylab = "Anzahl an Personen",
+            ylab = "Anz. Studierende",
             names.arg = c("UB", "EFB", "CLS", "Galerie", "Fakultät", "BCI", "Süd", "SRG"),
             main = "Vorher")
     barplot(sum_now, las = 2, ylim = c(0, 100),
-            ylab = "Anzahl an Personen",
+            ylab = "Anz. Studierende",
             names.arg = c("SB", "EFB", "CLS", "Galerie", "Fakultät", "BCI", "Süd", "SRG"),
             main = "Nachher")
     mtext("Nutzung der Lernorte", line = -1.5, outer = TRUE)
@@ -164,10 +165,54 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
   # 4: Zweck der Nutzung
     # data[ ,21:26], numeric range 0-1 (0 nein, 1 ja pro Zweck)
     # data[ ,27], character 
-    barplot(colSums(na.omit(data[ ,21:26])))
+    barplot(colSums(na.omit(data[ ,21:26])),
+            ylab = "Anz. Studierende",
+            main = "Zweck der Lernort-Nutzung")
     # Vielseitige Nutzung, also wichtige Thematik fuer Studienalltag
     # Am Meisten für Abgaben, am wenigsten für Abschlussarbeiten
-  
+    
+  # PRE fuer 5-7: Berechnung des Scores 
+    data[ ,28:57][is.na(data[,28:57])] = 0
+    ScoreVorher = numeric(138)
+    ScoreNachher = numeric(138)
+    gesum = numeric(138)
+    
+    for(j in 1:138) {
+      for(i in 0:9) {
+        ScoreVorher[j] = ScoreVorher[j] + (as.numeric(data[j, 28 + i]) * as.numeric(data[j, 38 + i]))
+        gesum[j] = gesum[j] + as.numeric(data[j, 28 + i])
+      }
+      if(gesum[j] != 0){
+        ScoreVorher[j] = ScoreVorher[j]/gesum[j]
+      } else {
+        ScoreVorher[j] = ScoreVorher[j]
+      }
+    }
+    for(j in 1:138) {
+      for(i in 0:9) {
+        ScoreNachher[j] = ScoreNachher[j] + (as.numeric(data[j, 28 + i]) * as.numeric(data[j, 48 + i]))
+      }
+      if(gesum[j] != 0){
+        ScoreNachher[j] = ScoreNachher[j]/gesum[j]
+      } else {
+        ScoreNachher[j] = ScoreNachher[j]
+      }
+    }
+    rm(i, j)
+    
+    ScoreNachher[which(ScoreNachher < 1)] = NA
+    ScoreVorher[which(ScoreVorher < 1)] = NA
+    meanV = mean(ScoreVorher, na.rm = T)  # 2.40
+    meanN = mean(ScoreNachher, na.rm = T) # 2.82
+    varV = var(ScoreVorher, na.rm = T)  # 0.84
+    varN = var(ScoreNachher, na.rm = T) # 0.67
+    ScoreNachher[which(ScoreNachher < 1)] = NA
+    ScoreVorher[which(ScoreVorher < 1)] = NA
+    Scorediff = ScoreVorher - ScoreNachher
+    data$ScoreV = ScoreVorher
+    data$ScoreN = ScoreNachher
+    data$ScoreDiff = Scorediff
+    
   # 5: Anforderungen an Lernumgebung 
     # data[ ,28:37], numeric range 1-5 (sehr unwichtig - sehr wichtig)
     # (Plot mit Durchschnitten von Yannick)
@@ -183,52 +228,73 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
   # 8: Sonstige Aspekte 
     # data[ ,58], character 
     # data[ ,59:60], numeric range 1-6 (Schulnoten, vorher und jetzt)
-    # (einzeln im Text nennen) 
+    # Einzeln im Text nennen, keine grafische Auswertung 
   
   # 9: Allgemeine Bewertung der Lernsituation
     # data[ ,61], numeric range 1-4 (sehr schlecht - sehr gut)
     deleteZero = which(data[ ,61] == 0)
-    data[, 61][deleteZero] = NA
-    barplot(table(na.omit(data[ ,61])), 
-            names.arg = c("Sehr schlecht", "Schlecht", "Gut", "Sehr Gut"))
+    data[ ,61][deleteZero] = NA
+    barplot(table(na.omit(data[ ,61])),
+            names.arg = c("Sehr schlecht", "Schlecht", "Gut", "Sehr Gut"),
+            ylab = "Anz. Studierende", ylim = c(0, 100),
+            main = "Bewertung der allgemeinen Lernort-Situation")
     # Ueberwiegend "gut" bewertet 
-    mean(na.omit(data[ ,61]))
-    # 2.602941
+    mean(na.omit(data$`Bewertung (9)`))
+    # 2.59, entspricht gut - sehr gut 
   
   # 10: Angemessener Ausgleich
     # data[ ,62], numeric range 0-1 (0 nein, 1 ja)
-    barplot(table(na.omit(data[ ,62])))
+    barplot(table(na.omit(data[ ,62])),
+            main = "Bewertung der für die UB geschaffenen Alternativen",
+            ylim = c(0, 100), ylab = "Anz. Studierende",
+            names.arg = c("Nicht angemessen", "Angemessen"))
+    # Ueberwiegend negativ, also kein angemessener Ausgleich
     # Mit Anteilen der Bib-Nutzung (Plot von Jacky) 
-    mosaicplot(~ factor(`UB(V)`, levels = c(1,0), labels = c("Ja", "Nein")) +
-                 factor(`Ersatzbew. (10)`, levels = c(1,0), labels = c("Ja", "Nein")),
-               data = data, ylab = "Ersatz ausreichend", xlab= "Bibliothek benutzt",
-               main = "Ersatzbewertung")
+    mosaicplot(~ factor(`UB(V)`, levels = c(1, 0), labels = c("Ja", "Nein")) +
+                 factor(`Ersatzbew. (10)`, levels = c(1, 0), labels = c("Ja", "Nein")),
+               data = data, 
+               ylab = "Angemessener Ausgleich", xlab= "UB genutzt",
+               main = "Bewertung der für die UB geschaffenen Alternativen")
   
   # 11: Geschlecht
     # data[ ,63], numeric range 1-3 (weiblich, maennlich, divers)
-    table(data[ ,63]) # sehr ausgeglichen 
-    data[ ,63] = factor(data[ ,63], 
-                        labels = c("Weiblich", "Männlich", "Divers"))
+    table(data[ ,63])
     barplot(table(data[ ,63]),
             main = "Geschlechterverteilung", 
             col = c("red", "blue", "yellow"),
-            xlab = "Geschlecht", 
-            ylab = "Anzahl an Personen")
-    # 
-  
+            xlab = "Geschlecht", names.arg = c("Weiblich", "Männlich", "Divers"),
+            ylab = "Anzahl an Personen", ylim = c(0, 70))
+    # Sehr ausgeglichen (w/m identisch mit 68)
+    # Also Aussagekraft Geschlechter-unabhaengig
+    
   # 12: Aktuelle Studienphase 
     # data[ ,64], numeric range 0-2 (Bachelor, Master, Nein)
-    table(data[ ,64]) # am meisten Bachelor
+    table(data[ ,64]) 
+    # 119 im Bachelor, 19 im Master
+    # Aussagekraft fuer Master daher beschraenkt 
   
   # 13: Fakultaet
     # data[ ,65], character
-    # uninteressant, lediglich in Reflexion 
+    # Uninteressant, lediglich in Reflexion beruecksichtigen
   
   # 14: Durchschnittliche Fahrtzeit
     # data[ ,66], character
-      # ---
-    # Bereinigt zu numeric (Angabe in Minuten)
-  
+    data[ ,66] = lapply(data[ ,66], as.numeric)
+    mean(data$Fahrzeit, na.rm = TRUE)
+    # 29.73 Minuten Weg zur Uni
+    par(mfrow = c(1, 2))
+    boxplot(data$Fahrzeit, ylab = "Fahrtzeit [min]", main = "Nutzer der UB")
+    points(jitter(data$`UB(V)`, factor = 0.01), data$Fahrzeit, 
+           col = ifelse(data$`UB(V)` == 1, "green", "black"))
+    boxplot(data$Fahrzeit, ylab = "Fahrtzeit [min]", main = "Nutzer der SB")
+    points(jitter(data$`SB(J)`, factor = 0.01), data$Fahrzeit, 
+           col = ifelse(data$`SB(J)` == 1, "blue", "black"))
+    mtext("Nutzung der UB/SB in Abhängigkeit des Weges zur Uni", 
+          line = -1.5, outer = TRUE)
+    dev.off()
+    # Vergleich vermutlich wenig sinnvoll, da Wanderung zu anderen Alternativen
+    # Aber: primaer Nutzung der Lernorte bei kuerzeren Wegen (v.a. bei SB)
+    
   # (15:) Erhebungsort
     # data[ ,67], character
     # Ohne weitere Relevanz, daher keine Analyse
@@ -239,19 +305,19 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     # Insgesamt: positiv - wichtiges Thema, das die Studierenden beschaeftigt 
 
 # 5: Diskussion
-# Einordnung: 
-# Lernsituation im Allgemeinen relativ gut 
-# Aber mehrheitlich kein angemessener Ersatz der UB (Einzelaspekte!)
-# Limitationen:
-# Sebrath erst seit einem Monat geoeffnet 
-# Lernpensum anfangs des Semesters geringer (Erfassung in Klausurenphase interessanter)
-# Gleichmaessigere Erfassung verschiedener Fakultaeten aussagekraeftiger 
-# Je nach Fakultaet unterschiedlich gutes Angebot an eigenen Raeumlichkeiten
-# Je nach Fakultaet individuelle Auslastung 
-# Aussagekraft primaer fuer Bachelor 
+  # Einordnung: 
+    # Lernsituation im Allgemeinen relativ gut 
+    # Aber mehrheitlich kein angemessener Ersatz der UB (Einzelaspekte!)
+  # Limitationen:
+    # Sebrath erst seit einem Monat geoeffnet 
+    # Lernpensum anfangs des Semesters geringer (Erfassung in Klausurenphase interessanter)
+    # Gleichmaessigere Erfassung verschiedener Fakultaeten aussagekraeftiger 
+    # Je nach Fakultaet unterschiedlich gutes Angebot an eigenen Raeumlichkeiten
+    # Je nach Fakultaet individuelle Auslastung 
+    # Aussagekraft primaer fuer Bachelor 
 
 # 6: Reflexion der fragebogengestuetzten Erhebung 
-# Erhebungsort bei diesem Stichprobenumfang und hoher Anzahl an Online-Einreichungen nicht sinnvoll
-# Spaetere Erhebung
-# Gleichmaessigere Verteilung (ggf. online spreaden / QR Code)
-# Studierende vor Ort getroffen -> viele, die zuhause lernen nicht beruecksichtigt
+  # Erhebungsort bei diesem Stichprobenumfang und hoher Anzahl an Online-Einreichungen nicht sinnvoll
+  # Spaetere Erhebung
+  # Gleichmaessigere Verteilung (ggf. online spreaden / QR Code)
+  # Studierende vor Ort getroffen -> viele, die zuhause lernen nicht beruecksichtigt
