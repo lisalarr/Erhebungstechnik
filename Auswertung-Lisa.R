@@ -28,20 +28,22 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
 # Feedback
 
 # 3: Stichprobe und Datensatz
-# Erhebung: Aushaendigen von Boegen, online Ausfuellen (PDF)
-# Stichprobe: 143 eingereichte Frageboegen (noch ohne Filtern!)
+# Erhebung: Aushaendigen von Boegen und online Ausfuellen 
+# Ort: Campus, Lernorte der TU (Fokus: Galerie, Mathetower)
+# Zeitraum: 13.11. bis 26.11.2023
+# Stichprobe: 143 eingereichte Frageboegen, aber
+  nrow(data) 
+  drop = c(43, 71) 
+  data = data[-drop, ]
+  rm(drop)
+  nrow(data) # 141 verwertbare Daten
+  # davon Nicht-TU-Studenten und Erstis ebenfalls loeschen
+  data = data[-which(data[ ,64] == 0), ]
+  nrow(data) # also nur noch 138 verwertbare
 # Variablen mit Skalenniveau: gleiche Typen gruppieren
+  # --- 
 
 # 4: Ergebnisse 
-# Gesamtzahl an Teilnehmern 
-nrow(data) # 143 eingereicht
-drop = c(43, 71) 
-data = data[-drop, ]
-rm(drop)
-nrow(data) # 141 verwertbare Daten
-# Nicht-TU-Studenten und Erstis ebenfalls loeschen
-data = data[-which(data[ ,64] == 0), ]
-nrow(data) # nur noch 138 verwertbare
 
 # Auswertung der einzelnen Fragen
 # 1: Diese Woche bereits Lernorte genutzt
