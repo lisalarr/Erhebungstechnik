@@ -114,10 +114,7 @@ test <- test[c(T,T,T,T,T,F,F,T),]
 library(networkD3)
 
 ## "Langes" Format wird erstellt
-test_lang <- test %>%
-  rownames_to_column %>%
-  gather(key = 'key', value = 'value', -rowname) %>%
-  filter(value > 0)
+test_lang <- test %>% rownames_to_column %>% gather(key = 'key', value = 'value', -rowname) %>% filter(value > 0)
 
 colnames(test_lang) <- c("source", "target", "value")
 test_lang$target <- paste(test_lang$target, " ", sep="")
