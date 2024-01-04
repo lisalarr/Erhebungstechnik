@@ -7,7 +7,9 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
 # Vorbereitung Bericht 
 # 1: Einleitung 
 # Motivation: Neubau der UB, Analyse geschaffener Alternativen
+# + allgemeine Informationen wie Anz. Lernplaetze etc. (s. Johanna)
 # Forschungsfrage: Wie ist die aktuelle Lernort Situation der TU zu bewerten? 
+# Subfragen (s. Liste Johanna) 
 
 # 2: Erhebungsinstrument 
 # Vierseitiger Fragebogen 
@@ -27,9 +29,8 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
 
 # 3: Stichprobe und Datensatz
 # Erhebung: Aushaendigen von Boegen, online Ausfuellen (PDF)
-# Stichprobe: 143 eingereichte Frageboegen
-# Variablen mit Skalenniveau 
-# -------------
+# Stichprobe: 143 eingereichte Frageboegen (noch ohne Filtern!)
+# Variablen mit Skalenniveau: gleiche Typen gruppieren
 
 # 4: Ergebnisse 
 # Gesamtzahl an Teilnehmern 
@@ -47,6 +48,8 @@ nrow(data) # nur noch 122 verwertbare
 # data[ ,2], numeric range 0-1 (0 nein, 1 ja)
 length(which(data$`Frage 1` == 1)) # 103
 103/122 # 84.43% 
+# Einstiegsfrage: gar nicht auswerten (ohne Erhebungsabsicht) 
+# Motivation fuer Fragebogen, nicht repraesentativ
 
 # 2: Woechentlich durchschnittliche Nutzung  
 # data[ ,3:4], character, Zeit in Stunden
@@ -68,7 +71,6 @@ wann = c("V", "N")
 # 4: Zweck der Nutzung
 # data[ ,21:26], numeric range 0-1 (0 nein, 1 ja pro Zweck)
 # data[ ,27], character 
-
 
 # 5: Anforderungen an Lernumgebung 
 # data[ ,28:37], numeric range 1-5 (sehr unwichtig - sehr wichtig)
