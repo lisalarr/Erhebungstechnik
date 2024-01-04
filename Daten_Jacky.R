@@ -47,22 +47,6 @@ boxplot(as.numeric(na.omit(data$`Frage 2 (Vorher)`)), as.numeric(na.omit(data$`F
 
 ## Sankey Plot
 
-# install.packages("networkD3")
-# install.packages("dplyr")
-#install.packages("tidyverse")
-#install.packages("virdis")
-#install.packages("patchwork")
-#install.packages("hrbrthemes")
-#install.packages("circlize")
-
-library(tidyverse)
-library(viridis)
-library(patchwork)
-library(hrbrthemes)
-library(circlize)
-library(networkD3)
-library(dplyr)
-
 sankeyNetwork(data[seq(5,20,2)], data[seq(6,)])
 
 ## Haeufigkeiten der Lernortnutzung (Vorher und Jetzt)
