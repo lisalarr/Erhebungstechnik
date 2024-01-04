@@ -40,8 +40,8 @@ data = data[-drop, ]
 rm(drop)
 nrow(data) # 141 verwertbare Daten
 # Nicht-TU-Studenten und Erstis ebenfalls loeschen
-data = data[-which(data[ ,64] == 2), ]
-nrow(data) # nur noch 122 verwertbare
+data = data[-which(data[ ,64] == 0), ]
+nrow(data) # nur noch 138 verwertbare
 
 # Auswertung der einzelnen Fragen
 # 1: Diese Woche bereits Lernorte genutzt
@@ -58,22 +58,23 @@ frage2 = as.data.frame(lapply(data[ ,3:4], as.numeric))
 # Bereinigt zu numeric
 mean(frage2[ ,1], na.rm = TRUE) # 12.13 Stunden
 mean(frage2[ ,2], na.rm = TRUE) # 10.84 Stunden (weniger!)
+boxplot(na.omit(data[ ,3]), as.numeric(na.omit(data[ ,4]), names = c("Group1", "Group2"), main = "Boxplots nebeneinander")))
 
 # 3: Verteilung  
 # data[ ,5:20], numeric range 0-1 (0 nein, 1 ja pro Standort)
-optionen = c("UB", "Sebrath", "EF", "Co-Learning", "Galerie", "Fakultät", "CT BCI", "Süd", "SRG I")
-wann = c("V", "N")
-# stacked barplot mit ggplot2 
-# x: optionen
-# y: 0-122(?)
-# fill: vorher nachher
+# (Plot mit Wanderung von Jacky) 
+# Trend: viel UB vorher (Wanderung nach ...)
+# Neue Lernorte werden genutzt 
 
 # 4: Zweck der Nutzung
 # data[ ,21:26], numeric range 0-1 (0 nein, 1 ja pro Zweck)
 # data[ ,27], character 
+barplot(colSums(na.omit(data[ ,21:26])))
+# 
 
 # 5: Anforderungen an Lernumgebung 
 # data[ ,28:37], numeric range 1-5 (sehr unwichtig - sehr wichtig)
+table(data[ ,28:37])
 
 # 6: Umsetzung VOR WiSe 2023/24
 # data[ ,38:47], numeric range 1-6 (Schulnoten)
@@ -87,6 +88,7 @@ wann = c("V", "N")
 
 # 9: Allgemeine Bwertung der Lernsituation
 # data[ ,61], numeric range 1-4 (sehr schlecht - sehr gut)
+barplot(table(na.omit(data[ ,61])))
 
 # 10: Angemessener Ausgleich
 # data[ ,62], numeric range 0-1 (0 nein, 1 ja)
@@ -115,19 +117,22 @@ table(data[ ,64]) # am meisten Bachelor
 
 # (16:) Feedback
 # data[ ,68], character
+# Positiv - wichtiges Thema, das die Studierenden beschaeftigt 
 
 # 5: Diskussion
 # Einordnung: 
 # Lernsituation im Allgemeinen relativ gut 
 # Aber mehrheitlich kein angemessener Ersatz der UB (Einzelaspekte!)
 # Limitationen:
+# Sebrath erst seit einem Monat geoeffnet 
 # Lernpensum anfangs des Semesters geringer (Erfassung in Klausurenphase interessanter)
 # Gleichmaessigere Erfassung verschiedener Fakultaeten aussagekraeftiger 
 # Je nach Fakultaet unterschiedlich gutes Angebot an eigenen Raeumlichkeiten
 # Je nach Fakultaet individuelle Auslastung 
-# Aussagekraft nur fuer Bachelor 
+# Aussagekraft primaer fuer Bachelor 
 
 # 6: Reflexion der fragebogengestuetzten Erhebung 
 # Erhebungsort bei diesem Stichprobenumfang und hoher Anzahl an Online-Einreichungen nicht sinnvoll
 # Spaetere Erhebung
 # Gleichmaessigere Verteilung (ggf. online spreaden / QR Code)
+# Studierende vor Ort getroffen -> viele, die zuhause lernen nicht beruecksichtigt
