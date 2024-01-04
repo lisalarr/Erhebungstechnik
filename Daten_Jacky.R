@@ -2,6 +2,17 @@ library("readxl")
 data <- read_excel("C:/Users/Jacqu/Documents/Erhebungstechniken/Bericht/DatensatzFragebogenLJJY.xlsx")
 data$id <- c(seq(1, length(data$`[id]`)))
 
+## Daten bereinigen
+
+nrow(data) # 143 eingereicht
+drop = c(43, 71) 
+data = data[-drop, ]
+rm(drop)
+nrow(data) # 141 verwertbare Daten
+# Nicht-TU-Studenten und Erstis ebenfalls loeschen
+data = data[-which(data[ ,64] == 2), ]
+nrow(data) # nur noch 122 verwertbare
+
 ## Anteile Bib-Nutzung und Ersatzbewertung ##
 
 #barplot(table(data$`Ersatzbew. (10)`))
@@ -47,22 +58,6 @@ boxplot(as.numeric(na.omit(data$`Frage 2 (Vorher)`)), as.numeric(na.omit(data$`F
 
 ## Sankey Plot
 
-# install.packages("networkD3")
-# install.packages("dplyr")
-#install.packages("tidyverse")
-#install.packages("virdis")
-#install.packages("patchwork")
-#install.packages("hrbrthemes")
-#install.packages("circlize")
-
-library(tidyverse)
-library(viridis)
-library(patchwork)
-library(hrbrthemes)
-library(circlize)
-library(networkD3)
-library(dplyr)
-
 sankeyNetwork(data[seq(5,20,2)], data[seq(6,)])
 
 ## Haeufigkeiten der Lernortnutzung (Vorher und Jetzt)
@@ -96,12 +91,12 @@ names <- names(freq)
 orte_vorher <- names[seq(1,length(names), by = 2)]
 orte_nachher <- names[seq(2,length(names), by = 2)]
 
-## NAs entfernen
+## NAs werden mit 0 ersetzt
 data[,5:20][is.na(data[,5:20])] <- 0
 
-## Mithilfe der Schleifen wird (hoffentlich) gezählt, wie viele Leute einen
-## Lernort vorher und jetzt angekreuzt haben bzw. wie viele Leute einen Lernort
-## vorher angekreuzt haben und jetzt einen anderen (Doppelungen können vorkommen)
+## Mithilfe der Schleifen wird gezählt, wie viele Leute einen Lernort vorher
+## und jetzt angekreuzt haben bzw. wie viele Leute einen Lernort
+## vorher angekreuzt haben und jetzt einen Anderen
 
 for(i in 1:length(zeilennamen)){
   for(j in 1:length(spaltennamen)){
@@ -125,33 +120,44 @@ test <- subset(test, select = -BCI)
 test <- subset(test, select = -Süd)
 test <- test[c(T,T,T,T,T,F,F,T),]
 
+test
+
+# SB EFB CLS Galerie Fak SRG
+# UB       9  25  14      48  56  26
+# EFB      1  14   4       5   1   3
+# CLS      0   0   3       2   0   1
+# Galerie  0   2   0      12   2   2
+# Fak      0   6  10      21  66   7
+# SRG      1   4   5      11   4  18
+
+
 ## Sankey Diagramm wird erstellt
 
 library(networkD3)
 
 ## "Langes" Format wird erstellt
-data_long <- test %>%
-  rownames_to_column %>%
-  gather(key = 'key', value = 'value', -rowname) %>%
-  filter(value > 0)
+test_lang <- test %>% rownames_to_column %>% gather(key = 'key', value = 'value', -rowname) %>% filter(value > 0)
 
-colnames(data_long) <- c("source", "target", "value")
-data_long$target <- paste(data_long$target, " ", sep="")
+colnames(test_lang) <- c("source", "target", "value")
+test_lang$target <- paste(test_lang$target, " ", sep="")
 
-nodes <- data.frame(name=c(as.character(data_long$source), as.character(data_long$target)) %>% unique())
+## Nodes werden erstellt 
+nodes <- data.frame(name=c(as.character(test_lang$source), as.character(test_lang$target)) %>% unique())
 
-data_long$IDsource=match(data_long$source, nodes$name)-1 
-data_long$IDtarget=match(data_long$target, nodes$name)-1
+test_lang$IDsource <- match(test_lang$source, nodes$name)-1 
+test_lang$IDtarget <- match(test_lang$target, nodes$name)-1
 
+## Farbauswahl
 farben_blau_gruen <- c("#08306b", "#2171b5", "#6baed6","#48b99b", "#369c75")
 
 farben <- paste0('d3.scaleOrdinal().range(["', paste(farben_blau_gruen, collapse = '","'), '"])')
 
-sankey_diagramm <- sankeyNetwork(Links = data_long, Nodes = nodes,
+sankey_diagramm <- sankeyNetwork(Links = test_lang, Nodes = nodes,
               Source = "IDsource", Target = "IDtarget",
-              Value = "value", NodeID = "name", nodePadding=17,
+              Value = "value", NodeID = "name", nodePadding=15,
               sinksRight=FALSE, colourScale=farben, nodeWidth=45, fontSize=12.5)
 
+## Sankey Diagramm wird geplotet
 sankey_diagramm
 
 ## Barplots der Lernortnutzung (Vorher und Jetzt)
@@ -160,3 +166,4 @@ barplot(sum_before, las = 2, ylim = c(0,100))
 barplot(sum_now, las = 2, ylim = c(0,100))
 
 dev.off()
+
