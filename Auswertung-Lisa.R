@@ -46,8 +46,6 @@ nrow(data) # nur noch 138 verwertbare
 # Auswertung der einzelnen Fragen
 # 1: Diese Woche bereits Lernorte genutzt
 # data[ ,2], numeric range 0-1 (0 nein, 1 ja)
-length(which(data$`Frage 1` == 1)) # 103
-103/122 # 84.43% 
 # Einstiegsfrage: gar nicht auswerten (ohne Erhebungsabsicht) 
 # Motivation fuer Fragebogen, nicht repraesentativ
 
@@ -62,7 +60,7 @@ boxplot(na.omit(data[ ,3]), as.numeric(na.omit(data[ ,4]), names = c("Group1", "
 
 # 3: Verteilung  
 # data[ ,5:20], numeric range 0-1 (0 nein, 1 ja pro Standort)
-# (Plot mit Wanderung von Jacky) 
+# (Plot mit Wanderung von Jacky + nebeneinander Barplot)
 # Trend: viel UB vorher (Wanderung nach ...)
 # Neue Lernorte werden genutzt 
 
@@ -70,28 +68,33 @@ boxplot(na.omit(data[ ,3]), as.numeric(na.omit(data[ ,4]), names = c("Group1", "
 # data[ ,21:26], numeric range 0-1 (0 nein, 1 ja pro Zweck)
 # data[ ,27], character 
 barplot(colSums(na.omit(data[ ,21:26])))
-# 
+# Divers, also wichtig
 
 # 5: Anforderungen an Lernumgebung 
 # data[ ,28:37], numeric range 1-5 (sehr unwichtig - sehr wichtig)
-table(data[ ,28:37])
+# (Plot mit Durchschnitten von Yannick)
 
 # 6: Umsetzung VOR WiSe 2023/24
 # data[ ,38:47], numeric range 1-6 (Schulnoten)
+# (score)
 
 # 7: Umsetzung AKTUELL im WiSe 2023/24
 # data[ ,48:57], numeric range 1-6 (Schulnoten)
+# (score)
 
 # 8: Sonstige Aspekte 
 # data[ ,58], character 
 # data[ ,59:60], numeric range 1-6 (Schulnoten, vorher und jetzt)
+# (einzeln im Text nennen) 
 
-# 9: Allgemeine Bwertung der Lernsituation
+# 9: Allgemeine Bewertung der Lernsituation
 # data[ ,61], numeric range 1-4 (sehr schlecht - sehr gut)
 barplot(table(na.omit(data[ ,61])))
 
 # 10: Angemessener Ausgleich
 # data[ ,62], numeric range 0-1 (0 nein, 1 ja)
+barplot(table(na.omit(data[ ,62])))
+# (Mosaikplot Jacky)
 
 # 11: Geschlecht
 # data[ ,63], numeric range 1-3 (weiblich, maennlich, divers)
@@ -103,8 +106,7 @@ table(data[ ,64]) # am meisten Bachelor
 
 # 13: Fakultaet
 # data[ ,65], character
-  # --- 
-# Bereinigt zu numeric range 1-17 (Liste TU)
+# uninteressant, lediglich in Reflexion 
 
 # 14: Durchschnittliche Fahrtzeit
 # data[ ,66], character
