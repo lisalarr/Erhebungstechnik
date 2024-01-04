@@ -120,6 +120,17 @@ test <- subset(test, select = -BCI)
 test <- subset(test, select = -Süd)
 test <- test[c(T,T,T,T,T,F,F,T),]
 
+test
+
+# SB EFB CLS Galerie Fak SRG
+# UB       9  25  14      48  56  26
+# EFB      1  14   4       5   1   3
+# CLS      0   0   3       2   0   1
+# Galerie  0   2   0      12   2   2
+# Fak      0   6  10      21  66   7
+# SRG      1   4   5      11   4  18
+
+
 ## Sankey Diagramm wird erstellt
 
 library(networkD3)
