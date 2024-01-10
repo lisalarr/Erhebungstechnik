@@ -101,7 +101,7 @@ data[,5:20][is.na(data[,5:20])] <- 0
 for(i in 1:length(zeilennamen)){
   for(j in 1:length(spaltennamen)){
     for(k in 1:length(data$`Frage 1`)){
-      if((i == j)|(i == 1)){
+      if((i == j)|(j == 1)){
         if((data[k,3+2*i][[1]] == 1) & (data[k,4+2*j][[1]] == 1)){
           test[i,j] <- test[i,j] + 1
         }
@@ -166,4 +166,8 @@ barplot(sum_before, las = 2, ylim = c(0,100))
 barplot(sum_now, las = 2, ylim = c(0,100))
 
 dev.off()
+
+library(plotly)
+library(webshot)
+htmlwidgets::saveWidget("dein_sankey_plot.html", last_plot())
 
