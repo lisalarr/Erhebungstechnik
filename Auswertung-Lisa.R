@@ -51,8 +51,8 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     nrow(data) # also nur noch 138 verwertbare
   # Variablen mit Skalenniveau: gleiche Typen gruppieren
     # 68 Variablen 
-    # --- 
-
+    # s. Zettel 
+    
 # 4: Ergebnisse (Auswertung der einzelnen Fragen)
 
   # 1: Diese Woche bereits Lernorte genutzt
@@ -65,8 +65,10 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     data[49, 3:4] = NA
     frage2 = as.data.frame(lapply(data[ ,3:4], as.numeric))
     mean(frage2[ ,1], na.rm = TRUE) # 11.44 Stunden
+    var(frage2[ ,1], na.rm =TRUE)
     mean(frage2[ ,2], na.rm = TRUE) # 10.10 Stunden
     # Weniger, aber Befragung anfangs des Semesters (keine Klausurenphase)
+    # boxplot ohne mehrwert
     boxplot(na.omit(frage2[ ,1]), na.omit(frage2[ ,2]), 
             names = c("Vor WiSe 2023/24", "Während WiSe 2023/24"), 
             main = "Wöchentlich durchschnittliche Nutzung der Lernorte")
@@ -137,9 +139,9 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     farben = paste0('d3.scaleOrdinal().range(["', 
                     paste(farben_blau_gruen, collapse = '","'), '"])')
     sankey_diagramm = sankeyNetwork(Links = test_lang, Nodes = nodes,
-                                     Source = "IDsource", Target = "IDtarget",
-                                     Value = "value", NodeID = "name", nodePadding=15,
-                                     sinksRight=FALSE, colourScale=farben, nodeWidth=45, fontSize=12.5)
+                                    Source = "IDsource", Target = "IDtarget",
+                                    Value = "value", NodeID = "name", nodePadding=15,
+                                    sinksRight=FALSE, colourScale=farben, nodeWidth=45, fontSize=12.5)
     sankey_diagramm
     rm(farben, farben_blau_gruen, freq, i, j, k, names, orte_vorher, orte_nachher, 
        spalten, zeilen, nodes, sankey_diagramm, test, test_lang)
@@ -147,7 +149,8 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     # Also: diversifiziertere Nutzung aktuell
     # Beachte: Sebrath-Bib zum Zeitpunkt der Befragung noch nicht lang geoeffnet
 
-    # Barplots der Lernortnutzung
+    # Barplots der Lernortnutzung in den anhang 
+    # an jackys erklären, dann auf anhang verweisen für "am meisten genutzt..." 
     par(mfrow = c(1, 2))
     barplot(sum_before, las = 2, ylim = c(0, 100),
             ylab = "Anz. Studierende",
@@ -163,14 +166,15 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     # Gleicher Trend erkennbar 
     
     # Veraenderung der Lernortnutzung (GuV in absoluten HK)
+    # orte noch rein 
     indices = 2:8
     diffOrtc = jetztOrt[indices] - vorherOrt[indices]
     diffOrt = rbind(diffOrtc, names = c("EFB", "CLS", "Galerie", "Fakultät", "BCI", "Süd", "SRG"))
     barplot(as.numeric(diffOrt[1,]) ~ diffOrt[2,], 
             xlab = "Lernorte", ylab = "Absolute Häufigkeit", 
-            ylim = c(-10, 40), col =  c("red", rep("green", 5), "red"))
+            ylim = c(-10, 40), col =  c("red", rep("green", 5), "red"),
+            main = "Veränderung der Lernortnutzung")
     abline(h = 0)
-    mtext("Veränderung der Lernortnutzung", line = -1.5, outer = TRUE)
     # Vor allem Wanderung zu Galerie 
     
   # 4: Zweck der Nutzung
@@ -181,6 +185,7 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
             main = "Zweck der Lernort-Nutzung")
     # Vielseitige Nutzung, also wichtige Thematik fuer Studienalltag
     # Am Meisten für Abgaben, am wenigsten für Abschlussarbeiten
+    # table erstellen, mit zahlen im text arbeiten
     
   # PRE fuer 5-7: Berechnung des Scores 
     data[ ,28:57][is.na(data[,28:57])] = 0
@@ -249,11 +254,13 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     mtext("Gesamtbewertung der Lernorte der TU", line = -1.5, outer = TRUE)
     dev.off()
     # Insgesamt geringere Zufriedenheit
+    # plus score erklären
 
   # 8: Sonstige Aspekte 
     # data[ ,58], character 
     # data[ ,59:60], numeric range 1-6 (Schulnoten, vorher und jetzt)
     # Einzeln im Text nennen, keine grafische Auswertung 
+    # was häufig war (automaten, ...)
   
   # 9: Allgemeine Bewertung der Lernsituation
     # data[ ,61], numeric range 1-4 (sehr schlecht - sehr gut)
@@ -263,6 +270,7 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
             names.arg = c("Sehr schlecht", "Schlecht", "Gut", "Sehr Gut"),
             ylab = "Anz. Studierende", ylim = c(0, 100),
             main = "Bewertung der allgemeinen Lernort-Situation")
+    # ggf in anhang, sonst doppelt gemoppelt, hier lieber zahlen
     # Ueberwiegend "gut" bewertet 
     mean(na.omit(data$`Bewertung (9)`))
     # 2.59, entspricht gut - sehr gut 
@@ -274,6 +282,7 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
             ylim = c(0, 100), ylab = "Anz. Studierende",
             names.arg = c("Nicht angemessen", "Angemessen"))
     # Ueberwiegend negativ, also kein angemessener Ausgleich
+    # hier lieber zahlen
     # Mit Anteilen der Bib-Nutzung
     mosaicplot(~ factor(`UB(V)`, levels = c(1, 0), labels = c("Ja", "Nein")) +
                  factor(`Ersatzbew. (10)`, levels = c(1, 0), labels = c("Ja", "Nein")),
@@ -289,6 +298,7 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
             col = c("red", "blue", "yellow"),
             xlab = "Geschlecht", names.arg = c("Weiblich", "Männlich", "Divers"),
             ylab = "Anzahl an Personen", ylim = c(0, 70))
+    # einfach nur in zahlen
     # Sehr ausgeglichen (w/m identisch mit 68)
     # Also Aussagekraft Geschlechter-unabhaengig
     
@@ -317,6 +327,7 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     mtext("Nutzung der UB/SB in Abhängigkeit des Weges zur Uni", 
           line = -1.5, outer = TRUE)
     dev.off()
+    # ggf raus
     # Vergleich vermutlich wenig sinnvoll, da Wanderung zu anderen Alternativen
     # Aber: primaer Nutzung der Lernorte bei kuerzeren Wegen (v.a. bei SB)
     
