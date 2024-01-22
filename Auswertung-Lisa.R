@@ -199,15 +199,15 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
       jetztOrt[w] = sum(data[i], na.rm = TRUE)
     }
     jetztOrtdf = rbind(jetztOrt, names = colnames(data[seq2]))
-    # Fuer den Anhang: GuV in absoluten HK
+    # Fuer den Analyse Teil: GuV in absoluten HK
     indices = 2:8
     diffOrtc = jetztOrt[indices] - vorherOrt[indices]
     diffOrt = rbind(diffOrtc, names = c("EFB", "CLS", "Galerie", "Fakultät", "BCI", "Süd", "SRG"))
     barplot(as.numeric(diffOrt[1,]) ~ diffOrt[2,], 
             xlab = "Lernorte", ylab = "Absolute Häufigkeit", 
-            ylim = c(-10, 40), col =  c("red", rep("green", 5), "red"),
+            ylim = c(-10, 40), col =  c("firebrick3", rep("palegreen3", 5), "firebrick3"),
             main = "Veränderung der Lernortnutzung")
-    abline(h = 0)
+    abline(h = 0, col = "black", lwd = 1.5)
     rm(diffOrt, jetztOrtdf, vorherOrtdf, diffOrtc, i, indices, jetztOrt,
        seq1, seq2,vorherOrt, w)
     # Vor allem Wanderung zur Galerie, aber auch Co-Learning-Space populaerer
@@ -236,12 +236,12 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     means1 = lapply(means, mean)
     sorted1 = sort(unlist(means1), decreasing = TRUE)
 
-    # Plotten der durchschnittlichen Bewertung
+    # Plotten der durchschnittlichen Bewertung (weg)
     barplot(unlist(sorted1), 
          ylab = "", yaxt = "n", xlab = "", xaxt = "n",
          main = "Durchschnitte der Anforderungen an Lernorte")
     axis(1, at = 1:10, las = 1, labels = c("Platzgarantie", "Erreichbarkeit", "Stromversorgung", "Öffnungszeiten", "Ruhe", "Sicherheit", "Gruppenräume", "Barrierefreiheit", "Pausenbereiche", "Computer"))
-    axis(2, at = 1:5, las = 1, labels = c("sehr unwichtig", "unwichtig", "neutral", "wichtig", "sehr wichtig"))
+    axis(2, at = 0:4, las = 1, labels = c("sehr unwichtig", "unwichtig", "neutral", "wichtig", "sehr wichtig"))
     
     # Plotten als Boxplots
     boxplot(x = sorted51, ylim = c(0, 6),
@@ -294,6 +294,49 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     
   # 6: Umsetzung VOR WiSe 2023/24
     # data[ ,38:47], numeric range 1-6 (Schulnoten)
+    # 4 sehr wichtig + 3 wichtig bewerten
+    # "Erreichbarkeit", "Öffnungszeiten", "Platzgarantie" und 
+    # "Stromversorgung", "Ruhe", "Gruppenräume"
+    par(mfrow = c(3, 2))
+    
+    mosaicplot(~ factor(`Erreichbarkeit...38`, levels = 1:6,
+                       labels = c("1", "2", "3", "4", "5", "6")) +
+                 factor(`Erreichbarkeit...48`, levels = 1:6,
+                        labels = c("1", "2", "3", "4", "5", "6")),
+               data = data, ylab = "nachher", xlab = "vorher", 
+               main = "Erreichbarkeit")
+    mosaicplot(~ factor(`Öffnungszeiten...40`, levels = 1:6,
+                        labels = c("1", "2", "3", "4", "5", "6")) +
+                 factor(`Öffnungszeiten...50`, levels = 1:6,
+                        labels = c("1", "2", "3", "4", "5", "6")),
+               data = data, ylab = "nachher", xlab = "vorher", 
+               main = "Öffnungszeiten")
+    mosaicplot(~ factor(`Stromversorgung...44`, levels = 1:6,
+                        labels = c("1", "2", "3", "4", "5", "6")) +
+                 factor(`Stromversorgung...54`, levels = 1:6,
+                        labels = c("1", "2", "3", "4", "5", "6")),
+               data = data, ylab = "nachher", xlab = "vorher", 
+               main = "Stromversorgung")
+    mosaicplot(~ factor(`Ruhe...43`, levels = 1:6,
+                        labels = c("1", "2", "3", "4", "5", "6")) +
+                 factor(`Ruhe...53`, levels = 1:6,
+                        labels = c("1", "2", "3", "4", "5", "6")),
+               data = data, ylab = "nachher", xlab = "vorher", 
+               main = "Ruhe")
+    mosaicplot(~ factor(`Gruppenräume...45`, levels = 1:6,
+                        labels = c("1", "2", "3", "4", "5", "6")) +
+                 factor(`Gruppenräume...55`, levels = 1:6,
+                        labels = c("1", "2", "3", "4", "5", "6")),
+               data = data, ylab = "nachher", xlab = "vorher", 
+               main = "Gruppenräume")
+    mosaicplot(~ factor(`Platzgarantie...41`, levels = 1:6,
+                        labels = c("1", "2", "3", "4", "5", "6")) +
+                 factor(`Platzgarantie...51`, levels = 1:6,
+                        labels = c("1", "2", "3", "4", "5", "6")),
+               data = data, ylab = "nachher", xlab = "vorher", 
+               main = "Platzgarantie", 
+               color = ifelse(row(data$`Platzgarantie...41`) == column(data$`Platzgarantie...51`), "blue", "grey"))
+                 
   # 7: Umsetzung AKTUELL im WiSe 2023/24
     # data[ ,48:57], numeric range 1-6 (Schulnoten)
     boxplot(x = data.frame(data$ScoreV, data$ScoreN), 
@@ -316,19 +359,26 @@ data = read_excel("DatensatzFragebogenLJJY.xlsx")
     
   # 9: Allgemeine Bewertung der Lernsituation
     # data[ ,61], numeric range 1-4 (sehr schlecht - sehr gut)
-    deleteZero = which(data[ ,61] == 0)
-    data[ ,61][deleteZero] = NA
+    par(mfrow = c(1, 2))
+    deleteZero = data[51,61]
+    data[51,61] = NA
     # Fuer den Anhang
     barplot(table(na.omit(data[ ,61])),
             names.arg = c("Sehr schlecht", "Schlecht", "Gut", "Sehr Gut"),
-            ylab = "Anz. Studierende", ylim = c(0, 100),
-            main = "Bewertung der allgemeinen Lernort-Situation")
+            ylab = "Anz. Studierende", 
+            main = "Allgemein",
+            col = c("firebrick3", "firebrick1", "palegreen1", "palegreen3"))
     # Ueberwiegend "gut" bewertet 
     mean(na.omit(data$`Bewertung (9)`)) # 2.59, entspricht gut - sehr gut 
   
   # 10: Angemessener Ausgleich
     # data[ ,62], numeric range 0-1 (0 nein, 1 ja)
-    table(na.omit(data[ ,62]))
+    barplot(table(na.omit(data[ ,62])),
+            names.arg = c("nicht angemessen", "angemessen"),
+            ylab = "Anz. Studierende",
+            main = "Ersatz",
+            col = c("firebrick3", "palegreen3"))    
+    mtext("Bewertung der Lernortsituation", line = -1.5, outer = TRUE)
     # 83 nicht angemessen (= 60.14%) = Mehrheit
     # 30 angemessen (= 21.74%)
   
